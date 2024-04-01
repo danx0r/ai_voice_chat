@@ -55,7 +55,10 @@ class States:
 
 current_state = States.WAITING_FOR_USER
 
-system_message = f'We will continue our conversation. Here is a summary of the first part of our discussion: {session_one_summary} and the second part of our discussion {session_two_summary}...{session_two_part_two_summary}. Please be brief in your replies and focus on the most interesting concepts.'
+system_message_file = os.getenv("AICHAT_SYS_MESSAGE", "default_system_message.txt")
+with open(system_message_file) as f:
+    system_message = f.read()
+
 
 print("\nClaude's instructions: " + system_message + Fore.YELLOW +
       f"\n\nPress {command_key} to capture your audio and begin the conversation." + Style.RESET_ALL)
