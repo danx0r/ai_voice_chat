@@ -18,6 +18,8 @@ init(autoreset=True)
 
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
 VOICE_ID = os.getenv('ELEVENLABS_VOICE_ID', '2zx61Bg0KUjMrtgwGujs')
+VOICE_BOOST = float(os.getenv('ELEVENLABS_VOICE BOOST', '0.8'))
+VOICE_STABILITY = float(os.getenv('ELEVENLABS_VOICE_STABILITY', '0.35'))
 MODEL_ID = 'eleven_turbo_v2'
 
 file_increment = 0
@@ -52,7 +54,7 @@ async def process_text_to_speech(text):
     data = {
         "model_id": MODEL_ID,
         "text": text,
-        "voice_settings": {"similarity_boost": 0.8, "stability": 0.35}
+        "voice_settings": {"similarity_boost": VOICE_BOOST, "stability": VOICE_STABILITY}
     }
 
     timeout = Timeout(30.0, connect=60.0)
