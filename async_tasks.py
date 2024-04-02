@@ -62,7 +62,9 @@ async def process_text_to_speech(text):
     # print(Fore.YELLOW + f"Calling elevenlabs increment: {file_increment}" + Style.RESET_ALL)
 
     async with AsyncClient(timeout=timeout) as client:
-        response = await client.post(url, json=data, headers=headers)
+        # response = await client.post(url, json=data, headers=headers)
+        querystring = {"optimize_streaming_latency":"4","output_format":"mp3_44100_32"}
+        response = await client.post(url, json=data, headers=headers, params=querystring)
 
         if response.status_code == 200:
             # print(Fore.GREEN + "200 from elevenlabs" + Style.RESET_ALL)
