@@ -1,6 +1,7 @@
 # fmt: off
 import os
 import sys
+import time
 import platform
 import select
 import asyncio
@@ -13,6 +14,8 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 # fmt: on
 
+t1 = time.time()
+print ("ID async:", id(t1))
 load_dotenv()
 init(autoreset=True)
 
@@ -78,14 +81,15 @@ async def process_text_to_speech(text):
                 f"Error generating speech: {response.status_code} - {response.text}")
 
 async def play_audio():
+    bugg = False
     while True:
         if not pygame.mixer.music.get_busy() and bugg:
-            print ("AUDIO DONE")
+            print ("AUDIO DONE", time.time() - t1)
             bugg = False
         if not pygame.mixer.music.get_busy() and audio_queue:
             bugg = True
             pygame.mixer.music.load(audio_queue.popleft())
-            print ("START AUDIO PLAYBACK")
+            print ("START AUDIO PLAYBACK", time.time() - t1)
             pygame.mixer.music.play()
         await asyncio.sleep(0.1)
 

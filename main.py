@@ -21,8 +21,8 @@ from colorama import init, Fore, Style
 # Redirect stdout to devnull while importing Pygame
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
+import async_tasks
 # fmt: on
-
 
 # Initialization
 load_dotenv()
@@ -151,7 +151,7 @@ def generate_and_process_text(user_input, transcription_file):
         model="claude-3-opus-20240229",
     ) as stream:
         t3 = time.time()
-        print ("START GENERATE AUDIO", t3-t1)
+        print ("START GENERATE TEXT", t3-async_tasks.t1)
         for text in stream.text_stream:
             print(Fore.CYAN + text + Style.RESET_ALL, end="", flush=True)
             claude_response += text
@@ -202,9 +202,8 @@ def run_async_tasks():
     finally:
         loop.close()
 
-t2 = time.time()
 def main():
-    global current_state, is_recording, t1
+    global current_state, is_recording
     thread = Thread(target=run_async_tasks)
     thread.start()
 
@@ -239,12 +238,12 @@ def main():
                 # print("Processing user input...")
                 # Transcribe and process input
                 user_input = transcribe_audio_to_text(recording, fs)
-                t1 = time.time()
-                print ("TRANSCRIBING DONE", t1-t0)
+                async_tasks.t1 = time.time()
+                print ("TRANSCRIBING DONE", async_tasks.t1-t0)
                 print ("GENERATING RESPONSE")
                 generate_and_process_text(user_input, transcription_file)
                 t2 = time.time()
-                print ("GENERATING RESPONSE DONE", t2-t1)
+                print ("GENERATING RESPONSE DONE", t2-async_tasks.t1)
                 current_state = States.GENERATING_RESPONSE
 
             elif current_state == States.GENERATING_RESPONSE:
