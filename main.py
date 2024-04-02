@@ -97,6 +97,7 @@ def on_space_press(event):
         if current_state == States.WAITING_FOR_USER:
             is_recording = True
             current_state = States.RECORDING_USER_INPUT
+            print ("RECORDING")
             print(Fore.YELLOW + f"Recording started. Press {command_key} to stop.")
         elif current_state == States.RECORDING_USER_INPUT and is_recording:
             is_recording = False  # This will trigger the recording to stop
@@ -149,6 +150,8 @@ def generate_and_process_text(user_input, transcription_file):
         system=system_message,
         model="claude-3-opus-20240229",
     ) as stream:
+        t3 = time.time()
+        print ("START GENERATE AUDIO", t3-t1)
         for text in stream.text_stream:
             print(Fore.CYAN + text + Style.RESET_ALL, end="", flush=True)
             claude_response += text
@@ -199,9 +202,9 @@ def run_async_tasks():
     finally:
         loop.close()
 
-
+t2 = time.time()
 def main():
-    global current_state, is_recording
+    global current_state, is_recording, t1
     thread = Thread(target=run_async_tasks)
     thread.start()
 
@@ -229,18 +232,26 @@ def main():
                 # Start recording
                 recording, fs = record_audio()
                 current_state = States.PROCESSING_USER_INPUT
+                print ("TRANSCRIBING")
+                t0 = time.time()
 
             elif current_state == States.PROCESSING_USER_INPUT:
                 # print("Processing user input...")
                 # Transcribe and process input
                 user_input = transcribe_audio_to_text(recording, fs)
+                t1 = time.time()
+                print ("TRANSCRIBING DONE", t1-t0)
+                print ("GENERATING RESPONSE")
                 generate_and_process_text(user_input, transcription_file)
+                t2 = time.time()
+                print ("GENERATING RESPONSE DONE", t2-t1)
                 current_state = States.GENERATING_RESPONSE
 
             elif current_state == States.GENERATING_RESPONSE:
                 # print("Generating response...")
                 if not pygame.mixer.music.get_busy():  # Check if pygame playback is completed
                     current_state = States.WAITING_FOR_USER
+                    print ("WAITING FOR USER TO START RECORDING")
 
             # Add a short sleep to prevent the loop from hogging CPU
             time.sleep(0.1)

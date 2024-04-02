@@ -63,10 +63,12 @@ async def process_text_to_speech(text):
 
     async with AsyncClient(timeout=timeout) as client:
         # response = await client.post(url, json=data, headers=headers)
+        print ("  REQUEST AUDIO CHUNK")
         querystring = {"optimize_streaming_latency":"4","output_format":"mp3_44100_32"}
         response = await client.post(url, json=data, headers=headers, params=querystring)
 
         if response.status_code == 200:
+            print ("  RECEIVED AUDIO CHUNK")
             # print(Fore.GREEN + "200 from elevenlabs" + Style.RESET_ALL)
             with open(filename, 'wb') as audio_file:
                 audio_file.write(response.content)
@@ -75,12 +77,15 @@ async def process_text_to_speech(text):
             print(
                 f"Error generating speech: {response.status_code} - {response.text}")
 
-
 async def play_audio():
     while True:
-        # print ("DEBUG audio_queue:", audio_queue)
+        if not pygame.mixer.music.get_busy() and bugg:
+            print ("AUDIO DONE")
+            bugg = False
         if not pygame.mixer.music.get_busy() and audio_queue:
+            bugg = True
             pygame.mixer.music.load(audio_queue.popleft())
+            print ("START AUDIO PLAYBACK")
             pygame.mixer.music.play()
         await asyncio.sleep(0.1)
 
